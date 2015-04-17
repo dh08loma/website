@@ -14,17 +14,9 @@ body {
   font: 17px sans-serif;
 }
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
 .dot {
   stroke: #000;
 }
-
 
 .d3-tip {
   line-height: 1;
@@ -54,134 +46,405 @@ body {
   left: 0;
 }
 
+svg {
+  font: 14px sans-serif;
+}
+
+.background path {
+  fill: none;
+  stroke: #ccc;
+  stroke-opacity: .4;
+  shape-rendering: crispEdges;
+}
+
+.foreground path {
+  fill: none;
+  stroke: steelblue;
+  stroke-opacity: .7;
+}
+
+.brush .extent {
+  fill-opacity: .3;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  text-shadow: 0 1px 0 #fff;
+  cursor: move;
+}
+
+.axis line {
+  stroke: #ddd;
+}
+
+svg#plot2 .axis path {
+  display: none;
+}
+
+svg {
+  font: 12px sans-serif;
+  padding: 100px;
+}
+
+/*.axis,
+.frame {
+  shape-rendering: crispEdges;
+}*/
+
+
+
+.frame {
+  fill: none;
+  stroke: #aaa;
+}
+
+circle {
+  fill-opacity: .7;
+}
+
+circle.hidden {
+  fill: #ccc !important;
+}
+
+.extent {
+  fill: #000;
+  fill-opacity: .125;
+  stroke: #fff;
+}
+
 
 </style>
 
 
   </head>
 
-  <body>
-    <section class="page-header">
-      <h1 class="project-name">Dan Loman Homework 2</h1>
-      <h2 class="project-tagline"></h2>
-      <a href="https://github.com/dh08loma/website" class="btn">View on GitHub</a>
-      <a href="https://github.com/dh08loma/website/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/dh08loma/website/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+<body>
 
-    <section class="main-content">
-
+  <section class="page-header">
+    <h1 class="project-name">Dan Loman Homework 2</h1>
+    <h2 class="project-tagline"></h2>
+    <a href="https://github.com/dh08loma/website" class="btn">View on GitHub</a>
+    <a href="https://github.com/dh08loma/website/zipball/master" class="btn">Download .zip</a>
+    <a href="https://github.com/dh08loma/website/tarball/master" class="btn">Download .tar.gz</a>
+  </section>
 
 
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+  <section class="main-content">
+
+    <div id="plot1"> </div>
+    <div align= "left", id="plot2"> </div>
+    <div align= "left", id="plot3"> </div>
+
+
+
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+<u>C level functionality:</u> To achieve C level functionality I implemented a bubble chart of the data. I was curious to see if an increasing illiteracy rate was correlated with murders in a state. On my x-axis I have the illiteracy rate and on the y I have murders. To start off with this visualization, I used code to create a scatterplot. I edited it to have the radius of each bubble correspond to state population, and the color correspond to state region. The code I used already had a tooltip, but it wasn't pretty so I fixed that up to make my visualization more applealing. I also changed the axes and tick marks to make them more readable. Finally, I wrote code to make smaller bubbles appear on top of larger bubbles, and slightly decreased the opacity to make sure that all bubbles could be seen.
 
 <script>
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+  function first(){
+  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
 
-/* 
- * value accessor - returns the value to encode for a given data object.
- * scale - maps value to a visual display encoding, such as a pixel position.
- * map function - maps from data value to display value
- * axis - sets up axis
- */ 
+  /* 
+   * value accessor - returns the value to encode for a given data object.
+   * scale - maps value to a visual display encoding, such as a pixel position.
+   * map function - maps from data value to display value
+   * axis - sets up axis
+   */ 
 
-// setup x 
-var xValue = function(d) { return d.illiteracy;}, // data -> value
-    xScale = d3.scale.linear().range([0, width]), // value -> display
-    xMap = function(d) { return xScale(xValue(d));}, // data -> display
-    xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+  // setup x 
+  var xValue = function(d) { return d.illiteracy;}, // data -> value
+      xScale = d3.scale.linear().range([0, width]), // value -> display
+      xMap = function(d) { return xScale(xValue(d));}, // data -> display
+      xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
-// setup y
-var yValue = function(d) { return d.murder;}, // data -> value
-    yScale = d3.scale.linear().range([height, 0]), // value -> display
-    yMap = function(d) { return yScale(yValue(d));}, // data -> display
-    yAxis = d3.svg.axis().scale(yScale).orient("left");
+  // setup y
+  var yValue = function(d) { return d.murder;}, // data -> value
+      yScale = d3.scale.linear().range([height, 0]), // value -> display
+      yMap = function(d) { return yScale(yValue(d));}, // data -> display
+      yAxis = d3.svg.axis().scale(yScale).orient("left");
 
-// setup fill color
-var cValue = function(d) { return d.region;},
-    color = d3.scale.category10();
+  // setup fill color
+  var cValue = function(d) { return d.region;},
+      color = d3.scale.category10();
 
-// add the graph canvas to the body of the webpage
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  // add the graph canvas to the body of the webpage
+  var svg = d3.select("#plot1").append("svg")
+      .attr("id", "plot1")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var col = 'steelblue'
-
-var tip = d3.tip()
-  .attr('class', 'd3-tip')
-  .offset([-10, 0])
-  .html(function(d) {
-    return "<strong>State:</strong> <span style='color:"+col+"'>" + d.state_name + "</span>";
-  })
-
-// load data
-d3.csv("statex77.csv", function(error, data) {
-
-
-
+  var col = 'steelblue'
 
   var tip = d3.tip()
-   .attr('class', 'd3-tip')
-   .offset([-10, 0])
-   .html(function(d) {
-    // return "<strong>State:</strong> <span style='color: white'>" + d.state_name + "</span>";
-       return "<strong>State:</strong> <span style='color: "+color(cValue(d))+"'>" + d.state_name + "</span>";
-   })
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d) {
+      return "<strong>State:</strong> <span style='color:"+col+"'>" + d.state_name + "</span>";
+    })
 
-  // change string (from CSV) into number format
-  data.forEach(function(d) {
-    d.illiteracy = +d.illiteracy;
-    d.murder = +d.murder;
-    console.log(d);
+  // load data
+  d3.csv("statex77.csv", function(error, data) {
+
+
+
+
+    var tip = d3.tip()
+     .attr('class', 'd3-tip')
+     .offset([-10, 0])
+     .html(function(d) {
+      // return "<strong>State:</strong> <span style='color: white'>" + d.state_name + "</span>";
+         return "<strong>State:</strong> <span style='color: "+color(cValue(d))+"'>" + d.state_name + "</span>";
+     })
+
+    // change string (from CSV) into number format
+    data.forEach(function(d) {
+      d.illiteracy = +d.illiteracy;
+      d.murder = +d.murder;
+      console.log(d);
+    });
+
+    // don't want dots overlapping axis, so add in buffer to data domain
+    xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
+    yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
+
+    // x-axis
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+      .append("text")
+        .attr("class", "label")
+        .attr("x", width)
+        .attr("y", -6)
+        .style("text-anchor", "end")
+        .text("Illiteracy rate");
+
+    // y-axis
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Murder rate");
+
+    // draw dots
+    svg.selectAll(".dot")
+        .data(data)
+      .enter().append("circle")
+        .attr("class", "dot")
+        .attr("r", function(d) { return d.population/300})
+        .attr("cx", xMap)
+        .attr("cy", yMap)
+        .style("fill", function(d) { return color(cValue(d));})
+        .attr('fill-opacity', 0.85) 
+        .on('mouseover', tip.show)
+        .on('mouseout', tip.hide)
+        .sort(order);
+
+    // draw legend
+    var legend = svg.selectAll(".legend")
+        .data(color.domain())
+      .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+    // draw legend colored rectangles
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", color);
+
+    // draw legend text
+    legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(function(d) { return d;})
+
+
+
+    svg.call(tip);
+
+    function radius(d) { return d.population; }
+
+    function order(a, b) {
+      return radius(b) - radius(a);
+    }
+
+
   });
 
-  // don't want dots overlapping axis, so add in buffer to data domain
-  xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
-  yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
+  }
 
-  // x-axis
-  svg.append("g")
+  first()
+
+</script>
+
+<BR>
+<BR>
+<u>B level functionality:</u> To achieve B level functionality I implemented a scatterplot matrix of the data. To get started, I used the code from a previous scatterplot matrix and applied it to my data. Changes I made were coloring points corresponding to region and adding a legend, only using features with numerical data, reducing number of features to 4 to reduce clutter, making the x axis more readable by reducing the number of tick marks and increasing the size of the ticks.
+
+
+<script>
+
+  function second(){
+
+  var width = 960,
+    size = 150,
+    padding = 19.5;
+
+var x = d3.scale.linear()
+    .range([padding / 2, size - padding / 2]);
+
+var y = d3.scale.linear()
+    .range([size - padding / 2, padding / 2]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .ticks(4);
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(4);
+
+var color = d3.scale.category10();
+
+d3.csv("statex77.csv", function(error, data) {
+
+  var vars = ['income','illiteracy','life_exp','hs_grad']
+
+  var domainByTrait = {},
+      traits = d3.keys(data[0]).filter(function(d) { return vars.indexOf(d) >= 0}),
+      n = traits.length;
+  traits.forEach(function(trait) {
+    domainByTrait[trait] = d3.extent(data, function(d) { return d[trait]; });
+  });
+
+  xAxis.tickSize(size * n);
+  yAxis.tickSize(-size * n);
+
+  var brush = d3.svg.brush()
+      .x(x)
+      .y(y)
+      .on("brushstart", brushstart)
+      .on("brush", brushmove)
+      .on("brushend", brushend);
+
+  var svg = d3.select("#plot2").append("svg")
+      .attr("width", size * n + padding)
+      .attr("height", size * n + padding)
+    .append("g")
+      .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+
+  svg.selectAll(".x.axis")
+      .data(traits)
+    .enter().append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
-    .append("text")
-      .attr("class", "label")
-      .attr("x", width)
-      .attr("y", -6)
-      .style("text-anchor", "end")
-      .text("Illiteracy rate");
+      .attr("transform", function(d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+      .each(function(d) { x.domain(domainByTrait[d]); d3.select(this).call(xAxis); });
 
-  // y-axis
-  svg.append("g")
+  svg.selectAll(".y.axis")
+      .data(traits)
+    .enter().append("g")
       .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("class", "label")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Murder rate");
+      .attr("transform", function(d, i) { return "translate(0," + i * size + ")"; })
+      .each(function(d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis); });
 
-  // draw dots
-  svg.selectAll(".dot")
-      .data(data)
-    .enter().append("circle")
-      .attr("class", "dot")
-      .attr("r", function(d) { return d.population/300})
-      .attr("cx", xMap)
-      .attr("cy", yMap)
-      .style("fill", function(d) { return color(cValue(d));})
-      .attr('fill-opacity', 0.85) 
-      .on('mouseover', tip.show)
-      .on('mouseout', tip.hide)
-      .sort(order);
+  var cell = svg.selectAll(".cell")
+      .data(cross(traits, traits))
+    .enter().append("g")
+      .attr("class", "cell")
+      .attr("transform", function(d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+      .each(plot);
+
+  // Titles for the diagonal.
+  cell.filter(function(d) { return d.i === d.j; }).append("text")
+      .attr("x", padding)
+      .attr("y", padding)
+      .attr("dy", ".71em")
+      .text(function(d) { return d.x; });
+
+  cell.call(brush);
+
+  function plot(p) {
+    var cell = d3.select(this);
+
+    x.domain(domainByTrait[p.x]);
+    y.domain(domainByTrait[p.y]);
+
+    cell.append("rect")
+        .attr("class", "frame")
+        .attr("x", padding / 2)
+        .attr("y", padding / 2)
+        .attr("width", size - padding)
+        .attr("height", size - padding);
+
+    cell.selectAll("circle")
+        .data(data)
+      .enter().append("circle")
+        .attr("cx", function(d) { return x(d[p.x]); })
+        .attr("cy", function(d) { return y(d[p.y]); })
+        .attr("r", 3)
+        .style("fill", function(d) { return color(d.region); });
+  }
+
+  var brushCell;
+
+  // Clear the previously-active brush, if any.
+  function brushstart(p) {
+    if (brushCell !== this) {
+      d3.select(brushCell).call(brush.clear());
+      x.domain(domainByTrait[p.x]);
+      y.domain(domainByTrait[p.y]);
+      brushCell = this;
+    }
+  }
+
+  // Highlight the selected circles.
+  function brushmove(p) {
+    var e = brush.extent();
+    svg.selectAll("circle").classed("hidden", function(d) {
+      return e[0][0] > d[p.x] || d[p.x] > e[1][0]
+          || e[0][1] > d[p.y] || d[p.y] > e[1][1];
+    });
+  }
+
+  // If the brush is empty, select all circles.
+  function brushend() {
+    if (brush.empty()) svg.selectAll(".hidden").classed("hidden", false);
+  }
+
+  function cross(a, b) {
+    var c = [], n = a.length, m = b.length, i, j;
+    for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({x: a[i], i: i, y: b[j], j: j});
+    return c;
+  }
+
+  d3.select(self.frameElement).style("height", size * n + padding + 20 + "px");
+
 
   // draw legend
   var legend = svg.selectAll(".legend")
@@ -192,36 +455,174 @@ d3.csv("statex77.csv", function(error, data) {
 
   // draw legend colored rectangles
   legend.append("rect")
-      .attr("x", width - 18)
+      .attr("x", width - 280)
+      //.attr("y", 100)
       .attr("width", 18)
       .attr("height", 18)
       .style("fill", color);
 
   // draw legend text
   legend.append("text")
-      .attr("x", width - 24)
+      .attr("x", width - 288)
+      //.attr("y", 109)
       .attr("y", 9)
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text(function(d) { return d;})
 
 
+ });
 
-  svg.call(tip);
-
-  function radius(d) { return d.population; }
-
-  function order(a, b) {
-    return radius(b) - radius(a);
   }
 
-
-});
+  second()
 
 </script>
 
 
+<BR>
+<BR>
+<u>A level functionality:</u> To achieve A level functionality I implemented a parallel coordinates plot using my data. I kept this plot pretty simple, and only expect to achieve a grade of A- for my work. The changes I made to my starter code were only including features with numerical data, and increasing the size of the labels to improve readability. I wasn't able to figure out how to color code each line by state region.
 
+<script>
+
+  function third(){
+
+  var m = [30, 10, 10, 10],
+      w = 960 - m[1] - m[3],
+      h = 500 - m[0] - m[2];
+
+  var x = d3.scale.ordinal().rangePoints([0, w], 1),
+      y = {},
+      dragging = {};
+
+  var cValue = function(d) { return d.region;},
+      color = d3.scale.category10();
+
+  var line = d3.svg.line(),
+      axis = d3.svg.axis().orient("left"),
+      background,
+      foreground;
+
+  var svg = d3.select("#plot3").append("svg")
+      .attr("width", w + m[1] + m[3])
+      .attr("height", h + m[0] + m[2])
+    .append("g")
+      .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+
+  d3.csv("statex77.csv", function(error, data) {
+
+    // Extract the list of dimensions and create a scale for each.
+    var vars = ['income','illiteracy','murder','life_exp','hs_grad']
+
+    x.domain(dimensions = d3.keys(data[0]).filter(function(d) {
+      return vars.indexOf(d) >= 0 && (y[d] = d3.scale.linear()
+          .domain(d3.extent(data, function(p) { return +p[d]; }))
+          .range([h, 0]));
+    }));
+
+    // Add grey background lines for context.
+    background = svg.append("g")
+        .attr("class", "background")
+      .selectAll("path")
+        .data(data)
+      .enter().append("path")
+        .attr("d", path);
+
+    // Add blue foreground lines for focus.
+    foreground = svg.append("g")
+        .attr("class", "foreground")
+      .selectAll("path")
+        .data(data)
+      .enter().append("path")
+        .attr("d", path);
+
+    // Add a group element for each dimension.
+    var g = svg.selectAll(".dimension")
+        .data(dimensions)
+        .style("fill", function(d) { return color(cValue(d));})
+      .enter().append("g")
+        .attr("class", "dimension")
+        .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+        .call(d3.behavior.drag()
+          .on("dragstart", function(d) {
+            dragging[d] = this.__origin__ = x(d);
+            background.attr("visibility", "hidden");
+          })
+          .on("drag", function(d) {
+            dragging[d] = Math.min(w, Math.max(0, this.__origin__ += d3.event.dx));
+            foreground.attr("d", path);
+            dimensions.sort(function(a, b) { return position(a) - position(b); });
+            x.domain(dimensions);
+            g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
+          })
+          .on("dragend", function(d) {
+            delete this.__origin__;
+            delete dragging[d];
+            transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
+            transition(foreground)
+                .attr("d", path);
+            background
+                .attr("d", path)
+                .transition()
+                .delay(500)
+                .duration(0)
+                .attr("visibility", null);
+          }));
+
+    // Add an axis and title.
+    g.append("g")
+        .attr("class", "axis")
+        .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
+      .append("text")
+        .attr("text-anchor", "middle")
+        .attr("y", -9)
+        .text(String);
+
+    // Add and store a brush for each axis.
+    g.append("g")
+        .attr("class", "brush")
+        .each(function(d) { d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brushstart", brushstart).on("brush", brush)); })
+      .selectAll("rect")
+        .attr("x", -8)
+        .attr("width", 16);
+  });
+
+  function position(d) {
+    var v = dragging[d];
+    return v == null ? x(d) : v;
+  }
+
+  function transition(g) {
+    return g.transition().duration(500);
+  }
+
+  // Returns the path for a given data point.
+  function path(d) {
+    return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
+  }
+
+  // When brushing, don’t trigger axis dragging.
+  function brushstart() {
+    d3.event.sourceEvent.stopPropagation();
+  }
+
+  // Handles a brush event, toggling the display of foreground lines.
+  function brush() {
+    var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
+        extents = actives.map(function(p) { return y[p].brush.extent(); });
+    foreground.style("display", function(d) {
+      return actives.every(function(p, i) {
+        return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+      }) ? null : "none";
+    });
+  }
+
+  }
+
+  third()
+
+</script>
 
 </section>
 
