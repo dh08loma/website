@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dan Loman Data Visualization by dh08loma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+
+    <style>
+body {
+  font: 10px sans-serif;
+}
+.axis {
+  font: 20px sans-serif;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.bar {
+  fill: steelblue;
+}
+.bar:hover {
+  fill: orange ;
+}
+.x.axis path {
+  display: none;
+}
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+.grid .tick {
+    stroke: lightgrey;
+    opacity: .7;
+}
+.grid path {
+      stroke-width: 0;
+}
+</style>
+
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Dan Loman Data Visualization</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/dh08loma/website" class="btn">View on GitHub</a>
+      <a href="https://github.com/dh08loma/website/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/dh08loma/website/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+
+
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+var query_string = decodeURI(window.location.search).replace(/[^a-zA-Z]/g, '').toLowerCase();
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+var unique = query_string.split("").filter(onlyUnique);
+//Functionality change #1:
+unique = unique.sort()
+//Functionality change #2:
+vowels = new Array();
+consonents = new Array();
+for (var i = 0; i < unique.length; i++){
+  var letter = unique[i];
+  if (letter === 'a' || letter === 'e' || letter == 'i' || letter == 'o' || letter == 'u'){
+    vowels.push(letter)
+  } else{
+    consonents.push(letter)
+  }
+}
+var data = new Array();
+var max = 0
+for (var i = 0; i < unique.length; i++) {
+   //console.log(unique[i]);
+   var regex = new RegExp(unique[i],'g');
+   //console.log(query_string.match(regex).length);
+   element = new Object()
+   element.letter = unique[i]
+   element.frequency = query_string.match(regex).length
+   data.push(element)
+   if (query_string.match(regex).length > max){
+      max = query_string.match(regex).length
+   }
+}
+var data = new Array();
+for (var i = 0; i < vowels.length; i++) {
+   var regex = new RegExp(vowels[i],'g');
+   element = new Object()
+   element.letter = vowels[i]
+   element.frequency = query_string.match(regex).length
+   data.push(element)
+}
+for (var i = 0; i < consonents.length; i++) {
+   //console.log(unique[i]);
+   var regex = new RegExp(consonents[i],'g');
+   //console.log(query_string.match(regex).length);
+   element = new Object()
+   element.letter = consonents[i]
+   element.frequency = query_string.match(regex).length
+   data.push(element)
+}
+var margin = {top: 40, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+var formatPercent = d3.format(".0%");
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+var y = d3.scale.linear()
+    .range([height, 0]);
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(max);
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<strong>Frequency:</strong> <span style='color:orange'>" + d.frequency + "</span>";
+  })
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+svg.call(tip);
+x.domain(data.map(function(d) { return d.letter; }));
+y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+  .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("Frequency");
+svg.append("g")         
+        .attr("class", "grid")
+        .attr("transform", "translate(0," + height + ")")
+        .call(make_x_axis()
+            .tickSize(-height, 0, 0)
+            .tickFormat("")
+        );
+svg.append("g")         
+        .attr("class", "grid")
+        .call(make_y_axis()
+            .tickSize(-width, 0, 0)
+            .tickFormat("")
+        );
+svg.selectAll(".bar")
+    .data(data)
+  .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d.letter); })
+    .attr("width", x.rangeBand())
+    .attr("y", function(d) { return y(d.frequency); })
+    .attr("height", function(d) { return height - y(d.frequency); })
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide);
+function make_x_axis() {        
+    return d3.svg.axis()
+        .scale(x)
+         .orient("bottom")
+         .ticks(unique.length)
+}
+function make_y_axis() {        
+    return d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(unique.length)
+}
+function type(d) {
+  d.frequency = +d.frequency;
+  return d;
+}
+</script>
+
+
+      
+    </section>
+
+  
+  </body>
+</html>
+
