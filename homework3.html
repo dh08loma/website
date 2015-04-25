@@ -2,12 +2,48 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <title>Dan Loman Data Visualization by dh08loma</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+
+    <section class="page-header">
+      <h1 class="project-name">Dan Loman Homework 3</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/dh08loma/website" class="btn">View on GitHub</a>
+      <a href="https://github.com/dh08loma/website/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/dh08loma/website/tarball/master" class="btn">Download .tar.gz</a>
+
+      <BR>
+
+For these visualizations my goal was to look at the drivers, passengers and rear columns to see what proportion
+of serious accidents happened to each type of passenger. In data preprocessing, I added on a total column, which is the sum of these three.
+Finally, I divided this column by the kms column to get an accident rate. 
+
+<BR>
+<BR>
+<u>C level functionality:</u> To achieve C level functionality I plotted a Multi-Series Line Plot and an Area Plot. In my area plot I only visualized the total number of accidents, and in my multi-series line plot I visualized the total accidents, driver accidents, passenger accidents and rear passenger accidents.
+
+<BR>
+<BR>
+<u>B level functionality:</u> To achieve B level functionality I implemented two forms of interaction in my multi-series line plot. The first is a tooltip which shows both the date and accident rate upon scrollover, and the second is a zoom feature. WARNING: there is a semi-major error I was unable to fix in my zoom feature. For reasons I couldn't figure out, it only works some of the time (I think this is due to JS's asynchronous nature). The other times my x-axis just collapses. So I apologize in advance to the graders and peer reviewers, because you may have to refresh a few times to see my zoom feature in action.
+
+
+<BR>
+<BR>
+<u>A level functionality:</u> To achieve A level functionality I added a brushing feature to my area chart. This feature allows users to box out a portion of the graph they would like to see more closely and move it around.
+
+    </section>
+
 
 
     <style>
+
 
 body {
   font: 12px sans-serif;
@@ -83,6 +119,8 @@ svg {
 
 </style>
 <body>
+
+
 <script src="http://d3js.org/d3.v3.js"></script>
 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <script>
@@ -295,6 +333,8 @@ function zoomed() {
 
 </script>
 
+
+
 <script>
 
 //function second(){
@@ -407,7 +447,10 @@ function type(d) {
 
 </script>
 
+
 </body>
+
+
 
 </html>
 
