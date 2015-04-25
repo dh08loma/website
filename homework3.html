@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dan Loman Data Visualization by dh08loma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+
+
+    <style>
+
+body {
+  font: 12px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+
+.d3-tip {
+  line-height: 1;
+  font: 12px sans-serif;
+  font-weight: bold;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+svg {
+  font: 10px sans-serif;
+}
+
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+
+
+//function first(){
+
+var margin = {top: 20, right: 80, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+//var margin = {top: 10, right: 10, bottom: 100, left: 40},
+//    width = 960 - margin.left - margin.right,
+//    height = 500 - margin.top - margin.bottom;
+
+var parseDate = d3.time.format("%Y%m%d").parse;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.category10();
+
+
+
+
+
+
+
+
+d3.csv("seatbelts.csv", function(error, data) {
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+  var xAxis1 = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+    d.colname=Object.keys(d)
+  });
+
+var line = d3.svg.line()
+    .interpolate("linear")
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.accidents); });
+
+var zoom = d3.behavior.zoom()
+    .x(x)
+    //.y(y)
+    .on("zoom", zoomed);
+
+var svg = d3.select("body").append("svg")
+    //.call(zoom)
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .call(zoom);
+
+
+  var cities = color.domain().map(function(name) {
+    return {
+      name: name,
+      values: data.map(function(d) {
+        return {date: d.date, accidents: +d[name]};
+      })
+    };
+  });
+
+ var month = new Array();
+month[0] = "Jan";
+month[1] = "Feb";
+month[2] = "Mar";
+month[3] = "Apr";
+month[4] = "May";
+month[5] = "Jun";
+month[6] = "Jul";
+month[7] = "Aug";
+month[8] = "Sep";
+month[9] = "Oct";
+month[10] = "Nov";
+month[11] = "Dec";
+
+   var tip = d3.tip()
+   .attr('class', 'd3-tip')
+   .offset([-10, 0])
+   .html(function(d) {
+    //return "<strong>Accident rate:</strong> <span style='color: "+color(d.name)+"'>" + d.accidents + "</span>";
+    // Date(d.date.getFullYear(), d.date.getMonth(), d.date.getDate());
+    //return "<strong>Date:</strong> <span style='color: white'>" + d.date + " <br/> Accident Rate: "+d.accidents+" </span>";
+    return "<strong>Date:</strong> <span style='color: white'>" + month[d.date.getMonth()] + ", " + d.date.getFullYear() + " <br/> Accident Rate: "+d.accidents+" </span>";
+   })
+
+  //console.log(cities.name)
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+  y.domain([
+    d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.accidents; }); }),
+    d3.max(cities, function(c) { return d3.max(c.values, function(v) { return v.accidents; }); })
+  ]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis1);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Accident rate");
+
+  var city = svg.selectAll(".city")
+      .data(cities)
+    .enter().append("g")
+      .attr("class", "city");
+
+
+  city.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return color(d.name); });
+
+  city.append("text")
+     .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.accidents) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name; });
+
+
+
+
+  city.selectAll("circle")
+    .data( function(d) {return(d.values);} )
+    .enter()
+    .append("circle")
+      .attr("class","tipcircle")
+      .attr("cx", function(d,i){return x(d.date)})
+      .attr("cy",function(d,i){return y(d.accidents)})
+      .attr("r",6)
+      //.style("fill", function(d) { return color(cValue(d));})
+      .style('opacity', .0001)//1e-6
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+      //.attr ("title", maketip);
+
+
+svg.call(tip);
+
+var make_x_axis = function () {
+    return d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+        .ticks(10);
+};
+
+var make_y_axis = function () {
+    return d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(5);
+};
+
+
+
+function zoomed() {
+    //console.log(d3.event.translate);
+    //console.log(d3.event.scale);
+    svg.select(".x.axis").call(xAxis1);
+    //svg.select(".y.axis").call(yAxis);
+    //svg.select(".x.grid")
+    //    .call(make_x_axis()
+    //   .tickSize(-height, 0, 0)
+    //    .tickFormat(""));
+    //svg.select(".y.grid")
+    //    .call(make_y_axis()
+    //    .tickSize(-width, 0, 0)
+    //    .tickFormat(""));
+    svg.selectAll(".line")
+        .attr("class", "line")
+        .attr("d", function(d) { return line(d.values); });
+    svg.selectAll("circle")
+        .attr("class", "circle")
+        .attr("cx", function(d,i){return x(d.date)})
+         .attr("cy",function(d,i){return y(d.accidents)})
+        .attr("r",8)
+
+
+}
+
+
+});
+
+//}
+
+//first()
+
+</script>
+
+<script>
+
+//function second(){
+
+var margin = {top: 10, right: 10, bottom: 100, left: 40},
+    margin2 = {top: 430, right: 10, bottom: 20, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom,
+    height2 = 500 - margin2.top - margin2.bottom;
+
+
+var parseDate = d3.time.format("%Y%m%d").parse;
+
+//var x = d3.time.scale().range([0, width]),
+var x2 = d3.time.scale().range([0, width]),
+    y = d3.scale.linear().range([height, 0]),
+    y2 = d3.scale.linear().range([height2, 0]);
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+    yAxis = d3.svg.axis().scale(y).orient("left");
+
+var brush = d3.svg.brush()
+    .x(x2)
+    .on("brush", brushed);
+
+var area = d3.svg.area()
+    .interpolate("monotone")
+    .x(function(d) { return x(d.date); })
+    .y0(height)
+    .y1(function(d) { return y(d.total); });
+
+var area2 = d3.svg.area()
+    .interpolate("monotone")
+    .x(function(d) { return x2(d.date); })
+    .y0(height2)
+    .y1(function(d) { return y2(d.total); });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+
+svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+var focus = svg.append("g")
+    .attr("class", "focus")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var context = svg.append("g")
+    .attr("class", "context")
+    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+d3.csv("seatbelts.csv", type, function(error, data) {
+  x.domain(d3.extent(data.map(function(d) { return d.date; })));
+  y.domain([0, d3.max(data.map(function(d) { return d.total; }))]);
+  x2.domain(x.domain());
+  y2.domain(y.domain());
+
+  focus.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area);
+
+  focus.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  focus.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  context.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area2);
+
+  context.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(xAxis2);
+
+  context.append("g")
+      .attr("class", "x brush")
+      .call(brush)
+    .selectAll("rect")
+      .attr("y", -6)
+      .attr("height", height2 + 7);
+});
+
+function brushed() {
+  x.domain(brush.empty() ? x2.domain() : brush.extent());
+  focus.select(".area").attr("d", area);
+  focus.select(".x.axis").call(xAxis);
+}
+
+function type(d) {
+  d.date = parseDate(d.date);
+  d.total = +d.total;
+  return d;
+}
+
+//}
+
+//second()
+
+</script>
+
+</body>
+
+</html>
+
+
