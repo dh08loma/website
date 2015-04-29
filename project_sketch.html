@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dan Loman Data Visualization by dh08loma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Project Sketch</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/dh08loma/website" class="btn">View on GitHub</a>
+      <a href="https://github.com/dh08loma/website/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/dh08loma/website/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+
+
+     Note: I sent an email to nbaminer.com requesting permission to use their data, and they haven't responded back. Unless I get an email explicitly stating that I can't use it, I'm going to go ahead with this project using this data.
+
+    <BR>
+    <BR>
+
+     <u>Planned Tools:</u>
+
+     I've already used python to scrape and preprocess my data. The only thing I may have left to do is to create another dataset which is the league averages for each statistic across every year (it may be easier for me to do that in python than to do it in D3). For my visualizations I plan on using standardized Javascript libraries for my project, as everything I plan on doing has been done before for previous homeworks.
+
+     <BR>
+    <BR>
+
+     <u>Planned Techniques:</u>
+
+     I will be using 3 techniques, which are sketched out (or on Tableau) below: an animated bubble chart, a multi-line chart and two bar charts. For my animated bubble chart, the goal is to look at particular team statistics, offense vs defense (since each Four Factor stat has an offensive and defensive component), for each season. I will have a search tab which includes each team, and the size of the bubbles will correspond to the number of wins that team had in that season. Each bubble color will correspond to its associated statistic, and I'll include a legend. My multi-line chart will be a simple line chart which will identify league-wide trends across each stat. I'll take the NBA league average for each stat across all 19 years and plot them as line charts. I will also have a tab here to specify offense or defense.
+
+     <BR>
+    <BR>
+
+
+     <IMG SRC="sketch.jpeg" class="rotate180" ALT="Techniques 1 and 2" WIDTH=800 HEIGHT=1100>
+
+     <BR>
+    <BR>
+
+     These next two bar charts are plots that I came up with while working on a side project, that I'd love to implement in D3. They come from another dataset, which I've uploaded to github, which are results from my linear regression model on the Four Factors data. This dataset contains the actual wins vs expected wins (based on the results of my model) for each team in the 2014-15 season. I tried implementing these in D3 originally but got stuck on negative bar charts, so that will be a challenge moving forward.
+
+     <BR>
+    <BR>
+
+      
+      <script type='text/javascript' src='https://public.tableau.com/javascripts/api/viz_v1.js'></script><div class='tableauPlaceholder' style='width: 982px; height: 742px;'><noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NB&#47;NBA_FF_analysis&#47;Sheet1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz' width='982' height='742' style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='site_root' value='' /><param name='name' value='NBA_FF_analysis&#47;Sheet1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NB&#47;NBA_FF_analysis&#47;Sheet1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='showVizHome' value='no' /><param name='showTabs' value='y' /><param name='bootstrapWhenNotified' value='true' /></object></div>
+
+      <BR>
+    <BR>
+
+
+
+      <script type='text/javascript' src='https://public.tableau.com/javascripts/api/viz_v1.js'></script><div class='tableauPlaceholder' style='width: 982px; height: 742px;'><noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NB&#47;NBA_FourFactors_analysis15&#47;Sheet1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz' width='982' height='742' style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='site_root' value='' /><param name='name' value='NBA_FourFactors_analysis15&#47;Sheet1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NB&#47;NBA_FourFactors_analysis15&#47;Sheet1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='showVizHome' value='no' /><param name='showTabs' value='y' /><param name='bootstrapWhenNotified' value='true' /></object></div>
+
+      <BR>
+    <BR>
+
+
+      <u>Planned Interaction:</u> 
+
+      I plan to have a tooltip for each chart as well as a search tab for the first two techniques. I currently don't see the need for any more advanced interactions, but I may change my mind as I move forward with this project.
+
+      <BR>
+    <BR>
+
+
+      <u>Planned Interface:</u> 
+
+      My interface will look similar to the charts above. I'll probably keep them in vertical order, with descriptions of each chart and the data that went into them.
+   
+
+
+    </section>
+
+  
+  </body>
+</html>
