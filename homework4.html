@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dan Loman Data Visualization by dh08loma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+
+    <section class="page-header">
+      <h1 class="project-name">Dan Loman Homework 4</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/dh08loma/website" class="btn">View on GitHub</a>
+      <a href="https://github.com/dh08loma/website/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/dh08loma/website/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <font size="2">
+    <BR>
+    <BR>
+
+    <u>C Level Functionality:</u> To achieve C Level functionality, I created a dashboard in Tableau visualizing the movie data from R. I will explain these plots in more detail below.
+
+    <BR>
+    <BR>
+
+    <u>B Level Functionality:</u> To achieve B Level functionality, I created the same dashboard in D3. 
+
+    <BR>
+    <BR>
+
+    <u>Stacked Area plot:</u> The goal of my stacked area plot was to visualize movie genres over time. One major issue is that many movies were assigned multiple genres, so I had to preprocess my data to achieve a total of 100%. To do so I arbitrarily assigned each movie one of their listed genres. We notice that there is a small percentage of romance movies because a lot of the romance movies fell under other genres as well. I preprocessed this data in Python.
+
+    <BR>
+    <BR>
+
+    <u>Bar chart:</u> This bar chart shows the average rating for every type of movie genre. I preprocessed the data in Python.
+
+    <BR>
+    <BR>
+
+    <u>Line plot:</u> This line chart shows average movie length by year. I preprocessed the data in Python.
+
+    <BR>
+    <BR>
+</font>
+
+<script type='text/javascript' src='https://public.tableau.com/javascripts/api/viz_v1.js'></script><div class='tableauPlaceholder' style='width: 1004px; height: 895px;'><noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;hw&#47;hw4&#47;Dashboard1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz' width='1004' height='895' style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='site_root' value='' /><param name='name' value='hw4&#47;Dashboard1' /><param name='tabs' value='yes' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;hw&#47;hw4&#47;Dashboard1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='showVizHome' value='no' /><param name='showTabs' value='y' /><param name='bootstrapWhenNotified' value='true' /></object></div>
+
+<style>
+
+body {
+  font: 10px sans-serif;
+  width: 1050px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.browser text {
+  text-anchor: end;
+}
+
+.x.axis path {
+  display: none;
+}
+
+svg {
+    background-color: white;
+    margin: 1px;
+    float: left;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+
+</style>
+<body>
+
+<div id="block">
+<svg id="stacked_area" width="500" height="500"></svg>
+<svg id="bar" class="small" width="500" height="500"></svg>
+<svg id="line" class="small" width="1000" height="500"></svg>
+</div>
+
+
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+
+
+function stacked_area(){
+
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 500 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+
+var parseDate = d3.time.format("%Y-%b-%d").parse,
+    formatPercent = d3.format(".0%");
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.category20();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("right")
+    .tickFormat(formatPercent)
+    //.style("color","steelblue");;
+
+var area = d3.svg.area()
+    .x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); });
+
+var stack = d3.layout.stack()
+    .values(function(d) { return d.values; });
+
+//var svg = d3.select("body").append("svg")
+//    .attr("width", width + margin.left + margin.right)
+//    .attr("height", height + margin.top + margin.bottom)
+//  .append("g")
+//    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var svg = d3.select("svg#stacked_area")
+
+d3.csv("movies_SA.csv", function(error, data) {
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+    console.log(d.date)
+  });
+
+  var browsers = stack(color.domain().map(function(name) {
+    return {
+      name: name,
+      values: data.map(function(d) {
+        return {date: d.date, y: d[name] / 100};
+      })
+    };
+  }));
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+
+  var browser = svg.selectAll(".browser")
+      .data(browsers)
+    .enter().append("g")
+      .attr("class", "browser");
+
+  browser.append("path")
+      .attr("clip-path", "url(#clip")
+      .attr("class", "area")
+      .attr("d", function(d) { return area(d.values); })
+      .style("fill", function(d) { return color(d.name); })
+
+  ///*
+  browser.append("text")
+      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
+      .attr("x", 5)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name; })
+      .style("text-anchor","start");
+  //*/
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+});
+
+}
+
+
+
+stacked_area()
+
+
+function line(){
+
+
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 1000 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var parseDate = d3.time.format("%Y").parse;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var line = d3.svg.line()
+    .x(function(d) { return x(d.year); })
+    .y(function(d) { return y(d.length); });
+
+/*
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    */
+
+var svg = d3.select("svg#line")
+
+d3.csv("movies_line.csv", function(error, data) {
+  data.forEach(function(d) {
+    d.year = parseDate(d.year);
+    d.length = +d.length;
+  });
+
+  x.domain(d3.extent(data, function(d) { return d.year; }));
+  y.domain(d3.extent(data, function(d) { return d.length; }));
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Average movie length");
+
+  svg.append("path")
+      .datum(data)
+      .attr("class", "line")
+      .attr("d", line);
+});
+
+}
+
+
+
+line()
+
+
+
+
+function bar(){
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 500 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+
+var svg = d3.select("svg#bar")
+
+d3.csv("movies_bar.csv", type, function(error, data) {
+  x.domain(data.map(function(d) { return d.genre; }));
+  y.domain([0, d3.max(data, function(d) { return d.rating; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Average rating");
+
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.genre); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.rating); })
+      .attr("height", function(d) { return height - y(d.rating); });
+
+});
+
+function type(d) {
+  d.rating = +d.rating;
+  return d;
+}
+
+}
+
+bar()
+
+</script>
+
+
+</html>
