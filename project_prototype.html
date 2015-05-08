@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dan Loman Data Visualization by dh08loma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Project Prototype</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/dh08loma/website" class="btn">View on GitHub</a>
+      <a href="https://github.com/dh08loma/website/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/dh08loma/website/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+<font size="3">
+
+
+    <BR>
+    <BR>
+
+    My dataset contains "Four Factors" data for every NBA team over the past 19 seasons. "Four Factors" are Effective FG%, Turnover Rate, Offensive Rebound Rate and Free Throw Rate, and they explain every possible outcome of a basketball possession. I want to use this data to visualize trends that may have occurred in the NBA over the past 19 years.
+
+    <BR>
+    <BR>
+           I've included 3 prototypes here, 2 of which are on tableau. My D3 prototype is a multi-line chart. My multi-line chart is a simple line chart which will identify league-wide trends across each stat. I take the NBA league average for each stat across all 19 years and plot them as line charts. I will eventually also have a tab to specify offense or defense. The bar charts are plots that I came up with while working on a side project, that I eventually want to implement in D3. They come from another dataset, which are results from a linear regression model on the Four Factors data. This dataset contains the actual wins vs expected wins (based on the results of my model) for each team in the 2014-15 season. The first plot simply plots my "power rankings", teams ordered by their expected wins with bars extending to that number of wins. The second bar chart is the difference between expected wins and actual wins for each team I tried implementing these in D3 originally but got stuck on negative bar charts, so that will be a challenge moving forward.
+
+          <BR>
+          <BR>
+
+          The meat of my project will come from an animated scatterplot, inspired by the wealth of nations plot. It will plot their Four Factors stats for a particular year, with offense on the x and defense on the y, with the size of the bubbles corresponding to their number of wins that year. It'll then animate throughout the 19 seasons in my data. I'll also have a search tab to search for every team.
+
+    <BR>
+    <BR>
+</font>
+
+<style>
+
+body {
+  font: 12px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+
+.d3-tip {
+  line-height: 1;
+  font: 12px sans-serif;
+  font-weight: bold;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+
+var margin = {top: 50, right: 80, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var parseDate = d3.time.format("%Y%m%d").parse;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var x = d3.time.scale().range([0, width]),
+    y = d3.scale.linear().range([height, 0]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.category10();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+
+
+
+
+
+
+
+d3.csv("averages.csv", function(error, data) {
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+    d.colname=Object.keys(d)
+  });
+
+var line = d3.svg.line()
+    .interpolate("linear")
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.stats); });
+
+
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+
+
+  var cities = color.domain().map(function(name) {
+    return {
+      name: name,
+      values: data.map(function(d) {
+        return {date: d.date, stats: +d[name]};
+      })
+    };
+  });
+
+
+    var tip = d3.tip()
+   .attr('class', 'd3-tip')
+   .offset([-10, 0])
+   .html(function(d) {
+    //return "<strong>Accident rate:</strong> <span style='color: "+color(d.name)+"'>" + d.accidents + "</span>";
+    return "<strong>Year:</strong> <span style='color: white'>" + (d.date.getYear()+1900) + " <br/> League Average: "+d.stats+" </span>";
+   })
+
+  //console.log(cities.name)
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+  y.domain([
+    d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.stats; }); }),
+    d3.max(cities, function(c) { return d3.max(c.values, function(v) { return v.stats; }); })
+  ]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("League average rate");
+
+  var city = svg.selectAll(".city")
+      .data(cities)
+    .enter().append("g")
+      .attr("class", "city");
+
+
+  city.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return color(d.name); });
+
+  city.append("text")
+      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.stats) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name; });
+
+
+
+
+  city.selectAll("circle")
+    .data( function(d) {return(d.values);} )
+    .enter()
+    .append("circle")
+      .attr("class","tipcircle")
+      .attr("cx", function(d,i){return x(d.date)})
+      .attr("cy",function(d,i){return y(d.stats)})
+      .attr("r",10)
+      //.style("fill", function(d) { return color(cValue(d));})
+      .style('opacity', .001)//1e-6
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+      //.attr ("title", maketip);
+
+
+svg.call(tip);
+
+var make_x_axis = function () {
+    return d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+        .ticks(10);
+};
+
+var make_y_axis = function () {
+    return d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(5);
+};
+
+
+
+
+
+});
+
+</script>
+
+      
+      <script type='text/javascript' src='https://public.tableau.com/javascripts/api/viz_v1.js'></script><div class='tableauPlaceholder' style='width: 982px; height: 742px;'><noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NB&#47;NBA_FF_analysis&#47;Sheet1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz' width='982' height='742' style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='site_root' value='' /><param name='name' value='NBA_FF_analysis&#47;Sheet1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NB&#47;NBA_FF_analysis&#47;Sheet1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='showVizHome' value='no' /><param name='showTabs' value='y' /><param name='bootstrapWhenNotified' value='true' /></object></div>
+
+      <BR>
+    <BR>
+
+
+
+      <script type='text/javascript' src='https://public.tableau.com/javascripts/api/viz_v1.js'></script><div class='tableauPlaceholder' style='width: 982px; height: 742px;'><noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NB&#47;NBA_FourFactors_analysis15&#47;Sheet1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz' width='982' height='742' style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='site_root' value='' /><param name='name' value='NBA_FourFactors_analysis15&#47;Sheet1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;NB&#47;NBA_FourFactors_analysis15&#47;Sheet1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='showVizHome' value='no' /><param name='showTabs' value='y' /><param name='bootstrapWhenNotified' value='true' /></object></div>
+
+      <BR>
+    <BR>
+   
+
+
+    </section>
+
+  
+  </body>
+</html>
+
