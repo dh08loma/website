@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dan Loman Data Visualization by dh08loma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+
+    <section class="page-header">
+      <h1 class="project-name">Dan Loman Homework 5</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/dh08loma/website" class="btn">View on GitHub</a>
+      <a href="https://github.com/dh08loma/website/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/dh08loma/website/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <font size="2">
+    <BR>
+    <BR>
+
+<BR>
+<BR>
+C level functionality: Basic earthquake implementation that we did in lab
+<BR>
+<BR>
+B level functionality: Added color implementation - darker color corresponds to higher earthquake depth. 
+
+<head>
+    <meta charset="utf-8">
+    <title>Symbol Map Demo</title>
+
+    <!-- load D3 and TopoJSON //-->
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+
+    <!-- load custom CSS and JavaScript //-->
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+
+ </head>
+
+<body>
+
+<div id="block">
+<svg id="map" width="940" height="480"></svg>
+<p id="log">Loading map... please wait.</p>
+</div>
+
+<script>
+/*
+ * For sample TopoJSON files, go to:
+ * https://gist.github.com/mbostock/4090846
+ */
+var base = "https://gist.githubusercontent.com/mbostock/4090846/raw/";
+var url = {
+    //country: base + "us.json",
+    //states:  base + "us-state-names.tsv",
+    //precip:  "usprecip.json" // relative URL
+    world: base + "world-50m.json",
+    earthquakes: "4.5_month.csv"
+};
+
+// Uses reusable chart model
+// See http://bost.ocks.org/mike/chart/
+var chart = symbolMap();
+
+var color = d3.scale.linear()
+    .domain([0, 20])
+    .range(["white", "steelblue"])
+    .interpolate(d3.interpolateLab);
+
+// Update how we access data (need the precip property)
+chart = chart.value(function(d) { return d.mag; });
+
+// Nested calls to trigger drawing in proper order
+d3.json(url.world, function(mapError, mapJSON) {
+    if (processError(mapError)) return;
+
+    // update map data
+    chart = chart.map(mapJSON);
+
+    // Wait until the map is drawn before loading
+    // and drawing the data values
+    d3.csv(url.earthquakes, function(dataError, dataJSON) {
+        if (processError(dataError)) return;
+
+        chart = chart.values(dataJSON);
+        chart("map");
+    });
+});
+
+
+
+</script>
+
+</body>
+</html>
