@@ -331,6 +331,7 @@ dot.append("text")
 
   */
 
+var count = 0
 
   var dot = svg.append("g")
       .attr("class", "dots")
@@ -344,7 +345,7 @@ dot.append("text")
       .call(position)
       .on('mouseover', tip.show)
       .on('mouseout', tip.hide)
-      .attr('fill-opacity', function(d) { return d.Importance;}) 
+      //.attr('fill-opacity', .4) 
       //.attr('fill-opacity',.20)
       //.sort(order);
 
@@ -375,18 +376,25 @@ var label = svg.append("text")
       .tween("year", tweenYear)
       .each("end", enableInteraction);
 
-  console.log(teams[1].Importance)
+  teams.forEach(function(d) {
+
+    console.log(+d.Importance)
+
+  });
 
   // Positions the dots based on data.
   function position(dot) {
     dot .attr("cx", function(d) { return xScale(x(d)); })
         .attr("cy", function(d) { return yScale(y(d)); })
         .attr("r", function(d) { return radiusScale(radius(d)); })
-        .attr('fill-opacity', function(d) { return opacityScale(opacity(d)); }); 
+        .attr('fill-opacity', function(d) { return d.Importance }); 
         //.attr('fill-opacity', function(d) { return d.Importance; }); 
-        //.attr('fill-opacity', .5)
+        //.attr('fill-opacity', teams[1].Importance)
         //.attr('r', function(d) { return d.Wins[1]})
         //.attr('r', 12)
+
+    console.log(count)
+    count+=1
   }
 
 
