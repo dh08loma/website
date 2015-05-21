@@ -1,0 +1,371 @@
+<html>
+
+<select id="team_select" name="team_select">
+        <option value = None> --- </option>
+        <option value = AtlantaHawks> Atlanta Hawks </option>
+        <option value = BrooklynNets> Brooklyn Nets </option>
+        <option value = BostonCeltics> Boston Celtics </option>
+        <option value = CharlotteHornets> Charlotte Hornets </option>
+        <option value = ChicagoBulls> Chicago Bulls </option> 
+        <option value = ClevelandCavaliers> Cleveland Cavaliers </option>
+        <option value = DallasMaverics> Dallas Mavericks </option>
+        <option value = DenverNuggets> Denver Nuggets </option>
+        <option value = DetroitPistons> Detroit Pistons </option>
+        <option value = GoldenStateWarriors> Golden State Warriors </option>
+        <option value = HoustonRockets> Houston Rockets </option>
+        <option value = IndianaPacers> Indiana Pacers </option>
+        <option value = LosAngelesClippers> Los Angeles Clippers </option>
+        <option value = LosAngelesLakers> Los Angeles Lakers </option>
+        <option value = MemphisGrizzlies> Memphis Grizzlies </option>
+        <option value = MiamiHeat> Miami Heat </option>
+        <option value = MilwaukeeBucks> Milwaukee Bucks </option>
+        <option value = MinnesotaTimberwolves> Minnesota Timberwolves </option>
+        <option value = NewOrleansPelicans> New Orleans Pelicans </option>
+        <option value = NewYorkKnicks> New York Knicks </option>
+        <option value = OklahomaCityThunder> Oklahoma City Thunder </option>
+        <option value = OrlandoMagic> Orlando Magic </option>
+        <option value = "Philadelphia76ers"> Philadelphia 76ers </option>
+        <option value = PhoenixSuns> Phoenix Suns </option>
+        <option value = PortlandTrailblazers> Portland Trailblazers </option>
+        <option value = SacramentoKings> Sacramento Kings </option>
+        <option value = SanAntonioSpurs> San Antonio Spurs </option>
+        <option value = TorontoRaptors> Toronto Raptors </option>
+        <option value = UtahJazz> Utah Jazz </option>
+        <option value = WashingtonWizards> Washington Wizards </option>
+        
+    </select> 
+
+
+<select id="team_select" name="team_select">
+        <option value = AtlantaHawks> Wins </option>
+        <option value = BrooklynNets> Offense </option>
+        <option value = BostonCeltics> Defense </option>
+        
+    </select> 
+
+<h1>NBA Trends Over Time</h1>
+
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 12px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+.line.highlight {
+    fill-opacity: 1;
+    stroke-opacity: 1;
+}
+.focus .line.highlight {
+    stroke-width: 3;
+}
+.context .line.highlight {
+    stroke-width: 1.0;
+}
+
+.line.fadeout {
+    fill-opacity: 0.2;
+    stroke-opacity: 0.2;
+}
+
+.d3-tip {
+  line-height: 1;
+  font: 12px sans-serif;
+  font-weight: bold;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+
+/*
+var query_string = document.getElementById("team_select").value.split(/(?=[A-Z7])/)
+  var num_words = query_string.length;
+
+
+  var team_name = query_string[0]
+
+  for (var i = 1; i < num_words; i++) {
+      team_name = team_name.concat(' ')
+      team_name = team_name.concat(query_string[i])
+  }
+
+  */
+
+var svg_main_width = 960,
+    svg_main_height = 960;
+
+var margin = {top: 10, right: 10, bottom: 100, left: 40},
+    margin2 = {top: 430, right: 10, bottom: 20, left: 40},
+    margin3 = {top: 20, bottom: 300, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom,
+    height2 = 500 - margin2.top - margin2.bottom;
+
+var parseDate = d3.time.format("%Y%m%d").parse;
+
+var x = d3.time.scale().range([0, width]),
+    x2 = d3.time.scale().range([0, width]),
+    y = d3.scale.linear().range([height, 0]),
+    y2 = d3.scale.linear().range([height2, 0]);
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+    yAxis = d3.svg.axis().scale(y).orient("left");
+
+var brush = d3.svg.brush()
+    .x(x2)
+    .on("brush", brushed);
+
+var line = d3.svg.line()
+    .interpolate("basis")
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.stats); });
+
+var line2 = d3.svg.line()
+    .interpolate("basis")
+    .x(function(d) { return x2(d.date); })
+    .y(function(d) { return y2(d.stats); });
+
+var color = d3.scale.category10();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+
+svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+var focus = svg.append("g")
+    .attr("class", "focus")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(" + margin3.left + "," + (svg_main_height - margin3.bottom + 20) + ")");
+
+var context = svg.append("g")
+    .attr("class", "context")
+    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+d3.json("line2_json.json", function(error, data) {
+
+  console.log(data.date)
+
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+  dates = parseDate(data.date);
+
+  var cities = color.domain().map(function(name) {
+    return {
+      name: name,
+      values: data.map(function(d) {
+        return {date: d.date, stats: +d[name]};
+      })
+    };
+  });
+
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  x2.domain(d3.extent(data, function(d) { return d.date; }));
+
+  y.domain([
+    d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.stats; }); }),
+    d3.max(cities, function(c) { return d3.max(c.values, function(v) { return v.stats; }); })
+  ]);
+
+  y2.domain(y.domain());
+
+  console.log(data)
+
+
+
+  focus.append("path")
+      .datum(data)
+      .attr("class", "line")
+      .attr("d", line);
+
+  focus.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  focus.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  var city = focus.selectAll(".city")
+      .data(cities)
+    .enter().append("g")
+      .attr("class", "city");
+
+
+  city.append("path")
+      .attr("class", "line")
+      .attr("clip-path", "url(#clip)")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return color(d.name); });
+
+
+/*
+
+  city.append("text")
+      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+      .attr("class", "label")
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.stats) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name; });
+
+  */
+
+  var city2 = context.selectAll(".city")
+      .data(cities)
+    .enter().append("g")
+      .attr("class", "city");
+
+  city2.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line2(d.values); })
+      .style("stroke", function(d) { return color(d.name); });
+
+  context.append("path")
+      .datum(data)
+      .attr("class", "line")
+      .attr("d", line2);
+
+  context.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(xAxis2);
+
+  context.append("g")
+      .attr("class", "x brush")
+      .call(brush)
+    .selectAll("rect")
+      .attr("y", -6)
+      .attr("height", height2 + 7);
+
+
+
+
+  function make_bold(team_name) {
+    // class lines to highlight and fadeout selected city
+
+    d3.selectAll('path.line')
+        .classed("highlight", function(d) { return d.name === team_name; })
+        .classed("fadeout", function(d) { return d.name !== team_name; });
+
+  
+    if (team_name === 'None'){
+        d3.selectAll('path.line')
+        .classed("highlight", false)
+        .classed("fadeout", false);
+
+    }
+  }
+
+
+
+document.getElementById("team_select").addEventListener("click",function(){
+
+    
+    var query_string = document.getElementById("team_select").value.split(/(?=[A-Z7])/)
+    var num_words = query_string.length;
+
+
+    var team_name = query_string[0]
+
+    for (var i = 1; i < num_words; i++) {
+        team_name = team_name.concat(' ')
+        team_name = team_name.concat(query_string[i])
+    }
+
+
+
+    make_bold(team_name)
+    console.log(team_name)
+
+    
+},false);
+
+
+
+
+
+
+
+
+});
+
+
+
+
+function brushed() {
+  x.domain(brush.empty() ? x2.domain() : brush.extent());
+  focus.selectAll(".city")
+    .selectAll("path")
+    .attr("d", function(d) { return line(d.values); });
+  focus.selectAll(".label")
+  focus.select(".x.axis")
+    .call(xAxis);
+}
+
+
+
+</script>
+
+<html>
+
+
+

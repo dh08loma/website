@@ -1,0 +1,533 @@
+<html>
+
+<select id="team_select" name="team_select">
+        <option value = AtlantaHawks> Atlanta Hawks </option>
+        <option value = BrooklynNets> Brooklyn Nets </option>
+        <option value = BostonCeltics> Boston Celtics </option>
+        <option value = CharlotteHornets> Charlotte Hornets </option>
+        <option value = ChicagoBulls> Chicago Bulls </option> 
+        <option value = ClevelandCavaliers> Cleveland Cavaliers </option>
+        <option value = DallasMaverics> Dallas Mavericks </option>
+        <option value = DenverNuggets> Denver Nuggets </option>
+        <option value = DetroitPistons> Detroit Pistons </option>
+        <option value = GoldenStateWarriors> Golden State Warriors </option>
+        <option value = HoustonRockets> Houston Rockets </option>
+        <option value = IndianaPacers> Indiana Pacers </option>
+        <option value = LosAngelesClippers> Los Angeles Clippers </option>
+        <option value = LosAngelesLakers> Los Angeles Lakers </option>
+        <option value = MemphisGrizzlies> Memphis Grizzlies </option>
+        <option value = MiamiHeat> Miami Heat </option>
+        <option value = MilwaukeeBucks> Milwaukee Bucks </option>
+        <option value = MinnesotaTimberwolves> Minnesota Timberwolves </option>
+        <option value = NewOrleansPelicans> New Orleans Pelicans </option>
+        <option value = NewYorkKnicks> New York Knicks </option>
+        <option value = OklahomaCityThunder> Oklahoma City Thunder </option>
+        <option value = OrlandoMagic> Orlando Magic </option>
+        <option value = "Philadelphia76ers"> Philadelphia 76ers </option>
+        <option value = PhoenixSuns> Phoenix Suns </option>
+        <option value = PortlandTrailblazers> Portland Trailblazers </option>
+        <option value = SacramentoKings> Sacramento Kings </option>
+        <option value = SanAntonioSpurs> San Antonio Spurs </option>
+        <option value = TorontoRaptors> Toronto Raptors </option>
+        <option value = UtahJazz> Utah Jazz </option>
+        <option value = WashingtonWizards> Washington Wizards </option>
+        
+    </select> 
+
+
+
+
+
+<h1>NBA Four Factors</h1>
+
+<p id="chart"></p>
+
+<style>
+
+
+
+#chart {
+  margin-left: -40px;
+  height: 506px;
+}
+
+text {
+  font: 14px sans-serif;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.label {
+  fill: #777;
+}
+
+.year.label {
+  font: 500 196px "Helvetica Neue";
+  fill: #ddd;
+}
+
+.year.label.active {
+  fill: #aaa;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+  cursor: ew-resize;
+}
+
+.d3-tip {
+  line-height: 1;
+  font: 16px sans-serif;
+  font-weight: bold;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+</style>
+
+<script src="http://d3js.org/d3.v2.js?2.8.1"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+
+<script>
+
+document.getElementById("team_select").addEventListener("click",function(){
+
+    svg.selectAll("*").remove();
+    
+    var query_string = document.getElementById("team_select").value.split(/(?=[A-Z7])/)
+    var num_words = query_string.length;
+
+
+    var team_name = query_string[0]
+
+    for (var i = 1; i < num_words; i++) {
+        team_name = team_name.concat(' ')
+        team_name = team_name.concat(query_string[i])
+    }
+
+
+
+    start(team_name)
+    console.log(team_name)
+
+    
+},false);
+
+/*
+
+document.getElementById("team_select2").addEventListener("click",function(){
+
+    svg.selectAll("*").remove();
+    
+    var query_string = document.getElementById("team_select").value.split(/(?=[A-Z7])/)
+    var num_words = query_string.length;
+
+
+    var team_name = query_string[0]
+
+    for (var i = 1; i < num_words; i++) {
+        team_name = team_name.concat(' ')
+        team_name = team_name.concat(query_string[i])
+    }
+
+
+
+    start(team_name)
+    start(team_name2)
+    console.log(team_name)
+
+    
+},false);
+
+*/
+
+
+
+
+
+
+// Various accessors that specify the four dimensions of data to visualize.
+function x(d) { return d.Off; }
+function y(d) { return d.Def; }
+function radius(d) { return d.Wins; }
+//function color1(d) { return d.Team; }
+function key(d) { return d.Name; }
+function opacity(d) {return d.Importance;}
+
+
+// Chart dimensions.
+var margin = {top: 49.5, right: 29.5, bottom: 29.5, left: 79.5},
+    width = 960 - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// Various scales. These domains make assumptions of data, naturally.
+var xScale = d3.scale.linear().domain([-4, 4]).range([0, width]),
+    yScale = d3.scale.linear().domain([-4, 4]).range([height, 0]),
+    radiusScale = d3.scale.sqrt().domain([0, 80]).range([0, 40]),
+    opacityScale = d3.scale.linear().domain([0,1]).range([0,1]),
+    colorScale = d3.scale.category10();
+
+// The x & y axes.
+var xAxis = d3.svg.axis().orient("bottom").scale(xScale).ticks(12, d3.format(",d")),
+    yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+// Create the SVG container and set the origin.
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// Add the year label; the value is set on transition.
+
+
+function initialize_svg(){
+// Add the x-axis.
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+// Add the y-axis.
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+// Add an x-axis label.
+svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", width)
+    .attr("y", height - 6)
+    .text("Offense");
+
+// Add a y-axis label.
+svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", 6)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Defense");
+
+
+svg.append("line")          // attach a line
+    .style("stroke", "lightgrey")  // colour the line
+    .attr("x1", width/2)     // x position of the first end of the line
+    .attr("y1", height)      // y position of the first end of the line
+    .attr("x2", width/2)     // x position of the second end of the line
+    .attr("y2", 0)    // y position of the second end of the line
+    .attr('fill-opacity',.2);
+
+
+svg.append("line")          // attach a line
+    .style("stroke", "lightgrey")  // colour the line
+    .attr("x1", width)     // x position of the first end of the line
+    .attr("y1", height/2)      // y position of the first end of the line
+    .attr("x2", 0)     // x position of the second end of the line
+    .attr("y2", height/2);    // y position of the second end of the line
+
+
+}
+
+function start(teamm_name){
+
+  initialize_svg()
+
+  console.log(teamm_name)
+
+//alert("Start Clicked");
+// Load the data.
+d3.json("final_team_dict1.json", function(teams1) {
+
+  //initialize()
+
+  //console.log(nations1)
+
+  teams = teams1[teamm_name]
+
+  // A bisector since many nation's data is sparsely-defined.
+  var bisect = d3.bisector(function(d) { return d[0]; });
+
+  // Add a dot per nation. Initialize the data at 2000, and set the colors.
+  
+  console.log(teams)
+
+  var color = teams[0].Color[0][1]
+
+
+
+
+  var cValue = function(d) { return d.Name;},
+    color1 = color;
+
+
+
+  function round(value, decimals) {
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+}
+
+  var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<strong>Statistic:</strong> <span style='color: white'>" + d.Name + "</span>"+"<BR> <strong>Offensive Rating:</strong> <span style='color: white'>" + round(d.Off,2) + "</span>"+"<BR> <strong>Defensive Rating:</strong> <span style='color: white'>" + round(d.Def,2) + "</span>"+"<BR> <strong>Wins:</strong> <span style='color: white'>" + round(d.Wins,0) + "</span>";
+  })
+
+  /*
+
+  var node = svg.selectAll(".dot")
+      .data(interpolateData(1997))
+      .enter()
+      .append("g");
+
+  node.append("circle")
+  .attr("class", "dot")
+  .style("fill", color)
+  .attr('fill-opacity', 0.85) 
+  .on('mouseover', tip.show)
+  .on('mouseout', tip.hide)
+  //.sort(order);
+
+
+
+dot.append("text")
+    .attr("x", function(d) { return xScale(x(d)); })
+    .attr("y", function(d) { return yScale(y(d)); })
+    .text('afiwehiaweroiawerjaweraew')
+  //.text(function(d) {return });
+
+
+  */
+
+
+  var dot = svg.append("g")
+      .attr("class", "dots")
+    .selectAll(".dot")
+      .data(interpolateData(1997))
+    .enter().append("circle")
+      .attr("class", "dot")
+      .style("fill", color)
+      //.style("fill", function(d) {return d.Color})
+      //.style("fill", function(d) { return colorScale(color(d)); })
+      .call(position)
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+      .attr('fill-opacity', function(d) { return d.Importance;}) 
+      //.attr('fill-opacity',.20)
+      //.sort(order);
+
+var label = svg.append("text")
+    .attr("class", "year label")
+    .attr("text-anchor", "end")
+    .attr("y", height - 24)
+    .attr("x", width)
+    .style("font-size","60px")
+    .text(1997);
+
+  // Add an overlay for the year label.
+  var box = label.node().getBBox();
+
+
+  var overlay = svg.append("rect")
+        .attr("class", "overlay")
+        .attr("x", box.x)
+        .attr("y", box.y)
+        .attr("width", box.width)
+        .attr("height", box.height);
+        //.on("mouseover", enableInteraction);
+
+  // Start a transition that interpolates the data based on year.
+  svg.transition()
+      .duration(10000)
+      .ease("linear")
+      .tween("year", tweenYear)
+      .each("end", enableInteraction);
+
+  console.log(teams[1].Importance)
+
+  // Positions the dots based on data.
+  function position(dot) {
+    dot .attr("cx", function(d) { return xScale(x(d)); })
+        .attr("cy", function(d) { return yScale(y(d)); })
+        .attr("r", function(d) { return radiusScale(radius(d)); })
+        .attr('fill-opacity', function(d) { return opacityScale(opacity(d)); }); 
+        //.attr('fill-opacity', function(d) { return d.Importance; }); 
+        //.attr('fill-opacity', .5)
+        //.attr('r', function(d) { return d.Wins[1]})
+        //.attr('r', 12)
+  }
+
+
+
+  /*
+
+  // Defines a sort order so that the smallest dots are drawn on top.
+  function order(a, b) {
+    return radius(b) - radius(a);
+  }
+
+  */
+
+  // After the transition finishes, you can mouseover to change the year.
+  function enableInteraction() {
+    var yearScale = d3.scale.linear()
+        .domain([1997, 2015])
+        .range([box.x + 10, box.x + box.width - 10])
+        .clamp(true);
+
+    // Cancel the current transition, if any.
+    svg.transition().duration(0);
+
+    overlay
+        .on("mouseover", mouseover)
+        .on("mouseout", mouseout)
+        .on("mousemove", mousemove)
+        .on("touchmove", mousemove);
+
+    function mouseover() {
+      label.classed("active", true);
+    }
+
+    function mouseout() {
+      label.classed("active", false);
+    }
+
+    function mousemove() {
+      displayYear(yearScale.invert(d3.mouse(this)[0]));
+    }
+  }
+
+  // Tweens the entire chart by first tweening the year, and then the data.
+  // For the interpolated data, the dots and label are redrawn.
+  function tweenYear() {
+    var year = d3.interpolateNumber(1997, 2015);
+    return function(t) { displayYear(year(t)); };
+  }
+
+  // Updates the display to show the specified year.
+  function displayYear(year) {
+    dot.data(interpolateData(year), key)
+    //node.data(interpolateData(year), key)
+    .call(position)
+    //.sort(order);
+    label.text(Math.round(year));
+  }
+
+  // Interpolates the dataset for the given (fractional) year.
+  function interpolateData(year) {
+    return teams.map(function(d) {
+      return {
+        Name: d.Name,
+        Team: d.Team,
+        Off: interpolateValues(d.Off, year),
+        Wins: interpolateValues(d.Wins, year),
+        Def: interpolateValues(d.Def, year)
+      };
+    });
+  }
+
+  // Finds (and possibly interpolates) the value for the specified year.
+  function interpolateValues(values, year) {
+    var i = bisect.left(values, year, 0, values.length - 1),
+        a = values[i];
+    if (i > 0) {
+      var b = values[i - 1],
+          t = (year - a[0]) / (b[0] - a[0]);
+      return a[1] * (1 - t) + b[1] * t;
+    }
+    return a[1];
+  }
+
+  svg.call(tip);
+
+});
+
+svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text(teamm_name);
+
+/*
+var legend = svg.selectAll(".legend")
+      .data(color1.domain())
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  // draw legend colored rectangles
+  legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color1);
+
+  // draw legend text
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d;})
+
+      */
+
+
+}
+
+start('Atlanta Hawks')
+//start('Memphis Grizzlies')
+
+//}
+
+
+
+
+//<input type="submit" value="Start" onclick=start();>
+//<input type="submit" value="Stop" onclick=stop();>
+
+</script>
+
+
+<section class="main-content">
+
+haao;erhaower BONERZZZZ
+
+</section>
+
+
+</html>
