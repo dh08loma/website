@@ -20,21 +20,117 @@
     </section>
 
     <section class="main-content">
- 
-      
-      <a title="Animated Scatterplot" href="finalproject.html" target="_blank">Animated Scatterplot</a>
-      <BR>
-      <BR>
-      <a title="Multi-line chart" href="line.html" target="_blank">Multi-line chart</a>
-      <BR>
-      <BR>
-      <a title="Radar Chart" href="spider.html" target="_blank">Radar Chart</a>
 
+
+    	For my final project I looked at NBA "Four Factors" data, which I scraped from <A HREF="http://www.nbaminer.com/four-factors/">NBA Miner</A>. "Four Factors" are advanced statistics which include Effective Field Goal Percentage (FG% weighted for 3 point shots), Turnover Rate (percent of possessions ending in a turnover), Offensive Rebound Rate (percent of available offensive rebounds grabbed), and Free Throw Rate (a metric which measures how often a team gets to the line and how often they make it). These factors have both an offensive and defensive component. The dataset I used contains all of these four factors stats for each team over the past 19 seasons, so I was able use my final project to capture some of the trends.
+ 
+      <BR>
+      <BR>
+      <BR>
+      <BR>
+      Relevent links:
+      <BR>
+      <BR>
+      First visualization: <a title="Animated Scatterplot" href="finalproject.html" target="_blank">Animated Scatterplot</a>
+      <BR>
       
+      Second visualization: <a title="Multi-line chart" href="line.html" target="_blank">Multi-line charts</a>
+      <BR>
+      
+      Third visualization: <a title="Radar Chart" href="spider.html" target="_blank">Radar Chart</a>
+      <BR>
+      
+      Github link: <A HREF="https://github.com/dh08loma/website">Dan's Github</A>
+
+      <BR>
+      <BR>
+      <BR>
+      <BR>
+      <b> First visualization </b>
+      <BR>
+      <BR>
+      In my <a title="Animated Scatterplot" href="finalproject.html" target="_blank">Animated Scatterplot</a>, I created a plot which animates a team's statistical progression over time, starting with the 1997 season. I plot each factor for every team, with its offensive component on the x-axis and its defensive component on the y. The size of each bubble corresponds to the number of wins that team had in each year, and its opacity is used to distinguish between factors. In another study I had determined the relative importance of each factor in explaining wins, so their opacity is proportional to that importance (using the pre-attentive attribute of boldness to draw the user to the most important stats). I also colored each team by their team color. This visualization excels at identifying team trends over time. I went with the animated scatterplot because it's a unique way of showing a time series and trends are often best recognized visually over time than across space.
+	  <BR>
+      <BR>
+      Users can interact with this visualization by selecting the team they'd like to visualize through the drop down menu, mousing over each bubble to trigger the tooltip functionality and view the details of each statistic, or by mousing over the year text in the bottom right to show a particular year.
+      <BR>
+      <BR>
+      I used python to preprocess this data. I quickly realized that since each factor runs on a different scale, the raw data on this plot didn't work, and I went back to python to standardize each column. Thus, a bubble at the top of the plot represents strong defense, while a bubble at the right of the plot represents strong offense.
+      <BR>
+      <BR>
+      The one big lie factor in this visualization is in the interpolation in the data. If you wanted to know the specific stat for a team in a given year, you could scoll that year, but unless you're in the exact spot the data is interpolated between that year and the next and the tooltip will be slightly inaccurate. Also, since the data is standardized, the user isn't presented with raw statistics in the tooltip, and they'll only get a sense of if a team was "good", "bad" or "average" in each category (I probably could have gone back and used the raw data for the tooltip). I have a low data density and data/ink ratio, perhaps too low, which I considered solving by allowing the user to select a second team to animate side by side.
+      <BR>
+      <BR>
+      The biggest challenge for me was implementing the dropdown menu and resetting the svg for each selection; that took a while. In conclusion, this plot was supposed to be the highlight of my project, and while I completed everything I planned on implementing for it and I'm proud of the functionality, it doesn't have the impact I expected it to. Even after normalizing the data, I just feel like it's tough to gather a lot of information from this plot. Four Factors data isn't extremely intuitive because each stat has a different correlation with team quality, and even though I highlighted that with the different opacities it's just hard to get a clear picture of a team's progression through this plot. Unlike the gapminder plot, where all data was more or less trending on one direction, bubbles kind of go all over the place here and unless you have preexisting notions of the data (i.e. the 2008-2010 Kevin Garnett Celtics had outstanding defense), you probably won't get too much out of it. It was interesting seeing the bubble size change as wins changed.
+
+      <BR>
+      <BR>
+      I used Mike Bostock's D3 interpretation of the <A HREF="http://bost.ocks.org/mike/nations/">Wealth and Health of Nations</A> as a baseline for this visualization.
+
+   
+
+      <BR>
+      <BR>
+      <BR>
+      <BR>
+
+      <b> Second visualization </b>
+      <BR>
+      <BR>
+      I feel like my <a title="Multi-line chart" href="line.html" target="_blank">Multi-line charts</a> ended up being more informative than the first visualization. These charts visualize every team's wins, offense and defense since 1997, with the option of highlighting a particular team. This visualization excels at giving the user a simple view of a teams's success relative to the rest of the league, while pointing out trends for one particular team at a time. It also colors each team by their actual color.
+      <BR>
+      <BR>
+      The interactivity with this plot starts with the user being able to select the team which they would like highlighted. There is also brushing and panning implementation, for if a user would like to hone in more closely on a particular time period (like perhaps the LeBron era Heat).
+      <BR>
+      <BR>
+      I used python to preprocess data for this visualization. Since I didn't want to have a chart for every statistic in my data, I created offensive and defense scores for each team. These scores were created using a weighted average of the previously preprocessed normalized data, based on my predetermined importances of each variable. I would have rather used offensive efficiency and defensive efficiency, but they weren't available in this data and my offense/defense scores align pretty well with my preexisting knowledge of the league.
+      <BR>
+      <BR>
+      Obviously, with all 30 teams plotted on the same chart, the data/ink ratio and data density was massive and my plot was an uninterpretable mess. I solved this problem with the highlighting feature, which draws attention to one team while keeping it the context of the rest of the league. I tried to avoid lie factor by using a linear interpolation instead of fancier ones. The only other potential lie factor is in my offense/defense scores, which may differ from offensive and defensive efficiency (the best measures for offense and defense).
+      <BR>
+      <BR>
+      The other thing I wanted to do with this visualization was to implement a tooltip on just the highlighted data, but I struggled to implement a scatterplot that changed with the dropdown and ran out of time. The other challenge I faced was figuring out how to best display the data - I was originally going to have a second tooltip allowing the user to select wins/offense/defense but went with displaying all of them on top of each other. I don't like that the user has to scroll to see everything, but I thought it was the simplest solution - just input the team you're interested in and you can see all you need to know. I didn't think these plots would go well on a dashboard because they all have to be wide, and I didn't want to squeeze them into a small amount of space. Another thing that would have been nice is tooltip implementation on each line, but that would have gotten messy quick and only been useful for identifying outlier teams. Overall, I'm happy with this visualization and have been playing around with it a good amount to see the kinds of trends different teams had over the years.
+	  <BR>
+      <BR>
+      I used blocks <A HREF="http://bl.ocks.org/davidshinn/7917466">here</A> and <A HREF="http://bl.ocks.org/mbostock/1667367">here</A> to help me with this part of the project. 
+      <BR>
+      <BR>
+      <BR>
+      <BR>
+      <b> Third visualization </b>
+      <BR>
+      <BR>
+      My last visualization was a <a title="Radar Chart" href="spider.html" target="_blank">Radar Chart</a>, and this one is probably my favorite. This visualization plots the stats of two teams on top of each other, allowing for easy comparison. Ever wonder which areas this year's (vastly improved) Golden State Warriors differed from last year's squad? Or how the Cavaliers stack up against statistically against the Hawks in the Eastern Conference Finals? This chart makes it easy to see how. It excels in comparing two teams side-by-side.
+      <BR>
+      <BR>
+      Users interact with this plot by selecting two team/year combinations. They can also mouse over each area and each data point to get exact values for each stat. I also wanted to include a tooltip which shows the number of wins that team got as you hover over, but I thought of it too late to implement it.
+      <BR>
+      <BR>
+      The biggest challenge for this visualization was the data preprocessing. I struggled to get the data in the correct format for implementation and spent a lot of time doing so. Once I accomplished plotting the data I realized that using raw data on this plot probably wasn't the most informative, since again, each statistic is on a different scale. I couldn't normalize the data because I couldn't have negative values, so I decided to use percentiles. To do this I simply took the pre-normalized data and converted those z scores to p scores. Each p score is from that particular year to protect against league-wide trends, so these plots are comparing apples to apples.
+      <BR>
+      <BR>
+      I think this visualization has very strong data/ink ratio and data density. Two teams is just enough to show the maximum amount of information without being overwhelmed. Users can instantly see which team is better based on the size of their areas, then spend more time in the details of the plot looking at each individual statistic, or seeing which teams were more offensive/defensive. Since the axis changes based on the maximum value of both teams, there is some lie factor here. When viewing this plot it's important to look at the axis and not overreact to a team with large area.
+      <BR>
+      <BR>
+      Aside from data preprocessing, another challenge with this plot was figuring out how to have my visualization react properly to the user picking 4 fields. It took a lot of trial and error but it works well in the end. In conclusion, this plot is probably my best one, and I've been playing around with it substantially to compare different teams.
+      <BR>
+      <BR>
+      I modified and added to code from this <A HREF="http://bl.ocks.org/nbremer/6506614">Radar plot</A> to complete this part of the project.
+
+	  <BR>
+      <BR>
+      <BR>
+      <BR>
+
+      Feedback: I ended up changing my project significantly from my original prototype as I began seriously implementing it since then, so a lot of the feedback I had originally gotten was no longer relevent. One piece of feedback I used was that my original bar plot ideas didn't really align with the rest of the data, and I ended up not using those charts.
+
+
 
 
     </section>
 
   
   </body>
+
+
 </html>
